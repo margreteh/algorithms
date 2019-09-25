@@ -4,9 +4,7 @@ import math
 print("Assignment 1, problem 1")
 
 buses = np.array([1, 2, 3])
-v = np.zeros(3)
-for i in range(v.size):
-    v[i] = 1
+v = np.ones(3)
 theta = np.zeros(3)
 
 # Network values
