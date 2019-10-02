@@ -8,11 +8,11 @@ v = np.ones(3)
 theta = np.zeros(3)
 
 # Network values
-R12 = 0.05
+R12 = 0.1
 R13 = 0.05
 R23 = 0.05
 X12 = 0.2
-X13 = 0.1
+X13 = 0.25
 X23 = 0.15
 
 # Impedances
@@ -32,9 +32,9 @@ B = Y_not_bus.imag
 print("G:\n", G, "\nB:\n", B)
 
 # Load values
-P1 = -1.0
+P1 = -0.8
 P2 = -0.5
-Q1 = -0.5
+Q1 = -0.4
 Q2 = -0.5
 
 Pact = ([P1, P2])
@@ -123,10 +123,6 @@ while max_mismatch > error and it < 4:
         mismatch[i][0] = Pact[i] - Pcal[i]
         mismatch[i+2][0] = Qact[i] - Qcal[i]
 
-    # Merging mismatch to deltaS vector
-    # mismatch_t = np.hstack((mismatch_p, mismatch_q))
-    # mismatch = np.transpose(mismatch_t)
-
     print("\nMismatch vector:\n", mismatch)
 
     # Calculating correction vectors
@@ -134,11 +130,6 @@ while max_mismatch > error and it < 4:
 
     print("\nCorrection vector:\n", corr)
 
-    # Updating voltages and angles
-    # v[0] = v[0] + corr[2]
-    # v[1] = v[1] + corr[3]
-    # theta[0] = theta[0] + corr[0]
-    # theta[1] = theta[1] + corr[1]
     for i in range(2):
         theta[i] = theta[i] + corr[i][0]
         v[i] = v[i] + corr[i+2][0]
