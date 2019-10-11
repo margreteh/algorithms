@@ -8,8 +8,9 @@ v = np.ones(3)
 theta = np.zeros(3)
 
 # Base case (these are for the values used in the slide, can find those for the assignment in assignment 1.2)
-v[0] = 0.83533749
-v[1] = 0.86371646
+v0 = [0.83533749, 0.86371646]
+v[0] = v0[0]
+v[1] = v0[1]
 theta[0] = -0.15291389
 theta[1] = -0.0949069
 
@@ -17,6 +18,7 @@ theta[1] = -0.0949069
 R12 = 0.1
 R13 = 0.05
 R23 = 0.05
+
 X12 = 0.2
 X13 = 0.25
 X23 = 0.15
@@ -35,16 +37,16 @@ Y_not_bus = np.array([[(y12+y13), y12, y13], [y12, (y12+y23), y23], [y13, y23, (
 G = Y_not_bus.real
 B = Y_not_bus.imag
 
-print("G:\n", G, "\nB:\n", B)
-
 # Load values
 P1 = -0.8
 P2 = -0.5
 Q1 = -0.4
 Q2 = -0.5
 
-Pact = np.array([P1, P2])
-Qact = np.array([Q1, Q2])
+P_spes = np.array([P1, P2])
+Q_spes = np.array([Q1, Q2])
+
+P_spes_temp = np.array([P_spes[0], P_spes[1]])
 
 # Arrays needed for calculations
 T = np.zeros((3, 3))
@@ -57,8 +59,8 @@ J_3 = np.zeros((2, 2))  # Lower left
 J_4 = np.zeros((2, 2))  # Lower right
 
 # Calculated power vectors
-Pcal = np.zeros(3)
-Qcal = np.zeros(3)
+P_cal = np.zeros(3)
+Q_cal = np.zeros(3)
 
 # Mismatch vector
 mismatch = np.zeros((5, 1))
@@ -88,12 +90,12 @@ for i in range(buses.size):
 
 # Calculating powers
 for i in range(buses.size):
-    Pcal[i] = v[i] * v[i] * G[i][i]
-    Qcal[i] = -v[i] * v[i] * B[i][i]
+    P_cal[i] = v[i] * v[i] * G[i][i]
+    Q_cal[i] = -v[i] * v[i] * B[i][i]
     for j in range(buses.size):
         if i != j:
-            Pcal[i] = Pcal[i] - v[i] * v[j] * T[i][j]
-            Qcal[i] = Qcal[i] - v[i] * v[j] * U[i][j]
+            P_cal[i] = P_cal[i] - v[i] * v[j] * T[i][j]
+            Q_cal[i] = Q_cal[i] - v[i] * v[j] * U[i][j]
 
 # Calculating the Jacobian matrix
 for i in range(2):
@@ -115,8 +117,8 @@ for i in range(2):
             J_3[i][j] = v[i] * v[j] * T[i][j]
             J_4[i][j] = - v[i] * U[i][j]
 
-print("\nCalculated active power:\n", Pcal)
-print("\nCalculated reactive power:\n", Qcal)
+print("\nCalculated active power:\n", P_cal)
+print("\nCalculated reactive power:\n", Q_cal)
 
 # Merging
 J_p = np.hstack((J_1, J_2))
@@ -141,6 +143,10 @@ for i in range(2):
 
 print("\nVoltage magnitues:\n", v)
 print("\nVoltage angles:\n", theta)
+
+# Updating spesified powers
+P_spes_temp[i] = P_spes_temp[i] + step_length*beta1
+P_spes_temp[i] = P_spes_temp[i] + step_length*beta2
 
 # ---------Corrector phase---------
 J_extra = np.array([0, 0, 0, 0, 1])
@@ -168,12 +174,12 @@ while max_mismatch > error and it < 4:
 
     # Calculating powers
     for i in range(buses.size):
-        Pcal[i] = v[i] * v[i] * G[i][i]
-        Qcal[i] = -v[i] * v[i] * B[i][i]
+        P_cal[i] = v[i] * v[i] * G[i][i]
+        Q_cal[i] = -v[i] * v[i] * B[i][i]
         for j in range(buses.size):
             if i != j:
-                Pcal[i] = Pcal[i] - v[i] * v[j] * T[i][j]
-                Qcal[i] = Qcal[i] - v[i] * v[j] * U[i][j]
+                P_cal[i] = P_cal[i] - v[i] * v[j] * T[i][j]
+                Q_cal[i] = Q_cal[i] - v[i] * v[j] * U[i][j]
 
     # Calculating the Jacobian matrix
     for i in range(2):
@@ -195,8 +201,8 @@ while max_mismatch > error and it < 4:
                 J_3[i][j] = v[i] * v[j] * T[i][j]
                 J_4[i][j] = - v[i] * U[i][j]
 
-    print("\nCalculated active power:\n", Pcal)
-    print("\nCalculated reactive power:\n", Qcal)
+    print("\nCalculated active power:\n", P_cal)
+    print("\nCalculated reactive power:\n", Q_cal)
 
     # Merging
     J_p = np.hstack((J_1, J_2))
@@ -209,8 +215,8 @@ while max_mismatch > error and it < 4:
 
     # Updating mismatch vectors
     for i in range(2):
-        mismatch[i][0] = Pact[i] - Pcal[i]
-        mismatch[i + 2][0] = Qact[i] - Qcal[i]
+        mismatch[i][0] = P_spes_temp[i] - P_cal[i]
+        mismatch[i + 2][0] = Q_spes[i] - Q_cal[i]
 
     print("\nMismatch vector:\n", mismatch)
 
@@ -247,12 +253,12 @@ for i in range(buses.size):
 
 # Calculating powers
 for i in range(buses.size):
-    Pcal[i] = v[i] * v[i] * G[i][i]
-    Qcal[i] = -v[i] * v[i] * B[i][i]
+    P_cal[i] = v[i] * v[i] * G[i][i]
+    Q_cal[i] = -v[i] * v[i] * B[i][i]
     for j in range(buses.size):
         if i != j:
-            Pcal[i] = Pcal[i] - v[i] * v[j] * T[i][j]
-            Qcal[i] = Qcal[i] - v[i] * v[j] * U[i][j]
+            P_cal[i] = P_cal[i] - v[i] * v[j] * T[i][j]
+            Q_cal[i] = Q_cal[i] - v[i] * v[j] * U[i][j]
 
 # Calculating the Jacobian matrix
 for i in range(2):
@@ -274,8 +280,8 @@ for i in range(2):
             J_3[i][j] = v[i] * v[j] * T[i][j]
             J_4[i][j] = - v[i] * U[i][j]
 
-print("\nCalculated active power:\n", Pcal)
-print("\nCalculated reactive power:\n", Qcal)
+print("\nCalculated active power:\n", P_cal)
+print("\nCalculated reactive power:\n", Q_cal)
 
 # Merging
 J_p = np.hstack((J_1, J_2))
@@ -301,8 +307,19 @@ for i in range(2):
 print("\nVoltage magnitues:\n", v)
 print("\nVoltage angles:\n", theta)
 
+# Updating spesified powers
+P_spes_temp[i] = P_spes_temp[i] + step_length*beta1
+P_spes_temp[i] = P_spes_temp[i] + step_length*beta2
+
 # ---------Corrector phase---------
-J_extra = np.array([0, 0, 0, 1, 0])
+rate_of_change_V1 = (v0[0]-v[0])/v0[0]
+rate_of_change_V2 = (v0[1]-v[1])/v0[1]
+
+if rate_of_change_V1 > rate_of_change_V2:
+    J_extra = np.array([0, 0, 1, 0, 0])
+else:
+    J_extra = np.array([0, 0, 0, 1, 0])
+
 print("\nCorrector phase 2:")
 
 # Mismatch vector
@@ -327,12 +344,12 @@ while max_mismatch > error and it < 4:
 
     # Calculating powers
     for i in range(buses.size):
-        Pcal[i] = v[i] * v[i] * G[i][i]
-        Qcal[i] = -v[i] * v[i] * B[i][i]
+        P_cal[i] = v[i] * v[i] * G[i][i]
+        Q_cal[i] = -v[i] * v[i] * B[i][i]
         for j in range(buses.size):
             if i != j:
-                Pcal[i] = Pcal[i] - v[i] * v[j] * T[i][j]
-                Qcal[i] = Qcal[i] - v[i] * v[j] * U[i][j]
+                P_cal[i] = P_cal[i] - v[i] * v[j] * T[i][j]
+                Q_cal[i] = Q_cal[i] - v[i] * v[j] * U[i][j]
 
     # Calculating the Jacobian matrix
     for i in range(2):
@@ -354,8 +371,8 @@ while max_mismatch > error and it < 4:
                 J_3[i][j] = v[i] * v[j] * T[i][j]
                 J_4[i][j] = - v[i] * U[i][j]
 
-    print("\nCalculated active power:\n", Pcal)
-    print("\nCalculated reactive power:\n", Qcal)
+    print("\nCalculated active power:\n", P_cal)
+    print("\nCalculated reactive power:\n", Q_cal)
 
     # Merging
     J_p = np.hstack((J_1, J_2))
@@ -368,8 +385,8 @@ while max_mismatch > error and it < 4:
 
     # Updating mismatch vectors
     for i in range(2):
-        mismatch[i][0] = Pact[i] - Pcal[i]
-        mismatch[i + 2][0] = Qact[i] - Qcal[i]
+        mismatch[i][0] = P_spes_temp[i] - P_cal[i]
+        mismatch[i + 2][0] = Q_spes[i] - Q_cal[i]
 
     print("\nMismatch vector:\n", mismatch)
 

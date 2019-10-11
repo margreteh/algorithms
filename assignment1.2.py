@@ -45,8 +45,6 @@ Y_not_bus = np.array([[(y12+y13), y12, y13], [y12, (y12+y23), y23], [y13, y23, (
 G = Y_not_bus.real
 B = Y_not_bus.imag
 
-print("G:\n", G, "\nB:\n", B)
-
 # Load values
 P1 = -0.8
 P2 = -0.5
