@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 print("Assignment 2")
 
@@ -8,11 +9,11 @@ v = np.ones(3)
 theta = np.zeros(3)
 
 # Base case (these are for the values used in the slide, can find those for the assignment in assignment 1.2)
-v0 = [0.83533749, 0.86371646]
+v0 = [0.8172113, 0.86018867]
 v[0] = v0[0]
 v[1] = v0[1]
-theta[0] = -0.15291389
-theta[1] = -0.0949069
+theta[0] = -0.1432562
+theta[1] = -0.08088964
 
 # Network values
 R12 = 0.1
@@ -39,8 +40,8 @@ B = Y_not_bus.imag
 
 # Load values
 P1 = -0.8
-P2 = -0.5
-Q1 = -0.4
+P2 = -0.4
+Q1 = -0.5
 Q2 = -0.5
 
 P_spes = np.array([P1, P2])
@@ -75,6 +76,12 @@ step_length = 0.3
 J_ab = np.zeros((4, 1))
 J_ab[0][0] = beta1
 J_ab[1][0] = beta2
+
+# Plotting vectors
+
+load_plot = [abs(P1+P2)]
+v1_plot = [v[0]]
+v2_plot = [v[1]]
 
 # -----------Predictor phase-----------
 
@@ -145,8 +152,13 @@ print("\nVoltage magnitues:\n", v)
 print("\nVoltage angles:\n", theta)
 
 # Updating spesified powers
-P_spes_temp[i] = P_spes_temp[i] + step_length*beta1
-P_spes_temp[i] = P_spes_temp[i] + step_length*beta2
+P_spes_temp[0] = P_spes_temp[0] + P_spes_temp[0]*step_length*beta1
+P_spes_temp[1] = P_spes_temp[1] + P_spes_temp[1]*step_length*beta2
+
+# Plotting
+load_plot.append(abs(P_spes_temp[0]+P_spes_temp[1]))
+v1_plot.append(v[0])
+v2_plot.append(v[1])
 
 # ---------Corrector phase---------
 J_extra = np.array([0, 0, 0, 0, 1])
@@ -156,14 +168,14 @@ print("\nCorrector phase:")
 mismatch = np.zeros((5, 1))
 
 # Allowed error
-error = 0.001
+error = 0.005
 
 max_mismatch = 1
 
 # Iteration count
 it = 0
 
-while max_mismatch > error and it < 4:
+while max_mismatch > error:
     print("\nIteration nr.", it+1)
 
     # Updating T and U
@@ -239,11 +251,19 @@ while max_mismatch > error and it < 4:
     # Updating iteration count
     it += 1
 
+# Plotting
+load_plot.append(abs(P_spes_temp[0]+P_spes_temp[1]))
+v1_plot.append(v[0])
+v2_plot.append(v[1])
+
 # -----------Predictor phase-----------
 
 print("\nPredictor phase 2:")
 # Jacobi for predictor phase
 J_extra = np.array([0, 0, 0, 0, 1])
+
+mismatch = np.zeros((5, 1))
+mismatch[4][0] = 1
 
 # Updating T and U
 for i in range(buses.size):
@@ -308,8 +328,13 @@ print("\nVoltage magnitues:\n", v)
 print("\nVoltage angles:\n", theta)
 
 # Updating spesified powers
-P_spes_temp[i] = P_spes_temp[i] + step_length*beta1
-P_spes_temp[i] = P_spes_temp[i] + step_length*beta2
+P_spes_temp[0] = P_spes_temp[0] + P_spes_temp[0]*step_length*beta1
+P_spes_temp[1] = P_spes_temp[1] + P_spes_temp[1]*step_length*beta2
+
+# Plotting
+load_plot.append(abs(P_spes_temp[0]+P_spes_temp[1]))
+v1_plot.append(v[0])
+v2_plot.append(v[1])
 
 # ---------Corrector phase---------
 rate_of_change_V1 = (v0[0]-v[0])/v0[0]
@@ -408,6 +433,19 @@ while max_mismatch > error and it < 4:
 
     # Updating iteration count
     it += 1
+
+# Plotting
+load_plot.append(abs(P_spes_temp[0]+P_spes_temp[1]))
+v1_plot.append(v[0])
+v2_plot.append(v[1])
+
+fig, ax = plt.subplots()
+ax.plot(load_plot, v1_plot, 'o', ls='-')
+ax.plot(load_plot, v2_plot, 'o', ls='-', color='red')
+ax.set(xlabel='System load [p.u.]', ylabel='Voltage [p.u.]', title='Plot of Voltage vs. Load Power')
+ax.grid()
+plt.show()
+
 
 
 

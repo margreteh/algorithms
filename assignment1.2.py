@@ -11,10 +11,10 @@ v = np.ones(3)
 theta = np.zeros(3)
 
 if not flat_start:
-    v[0] = 0.83533749
-    v[1] = 0.86371646
-    theta[0] = -0.15291389
-    theta[1] = -0.0949069
+    v[0] = 0.8172113
+    v[1] = 0.86018867
+    theta[0] = -0.1432562
+    theta[1] = -0.08088964
 
 # Vectors for plotting
 v_plot_bus_1 = []
@@ -47,8 +47,8 @@ B = Y_not_bus.imag
 
 # Load values
 P1 = -0.8
-P2 = -0.5
-Q1 = -0.4
+P2 = -0.4
+Q1 = -0.5
 Q2 = -0.5
 
 deltaP = -0.2

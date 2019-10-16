@@ -31,8 +31,8 @@ B = Y_not_bus.imag
 
 # Load values
 P1 = -0.8
-P2 = -0.5
-Q1 = -0.4
+P2 = -0.4
+Q1 = -0.5
 Q2 = -0.5
 
 Pact = ([P1, P2])
