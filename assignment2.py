@@ -152,8 +152,8 @@ print("\nVoltage magnitues:\n", v)
 print("\nVoltage angles:\n", theta)
 
 # Updating spesified powers
-P_spes_temp[0] = P_spes_temp[0] + P_spes_temp[0]*step_length*beta1
-P_spes_temp[1] = P_spes_temp[1] + P_spes_temp[1]*step_length*beta2
+P_spes_temp[0] = P_spes_temp[0] - step_length*beta1
+P_spes_temp[1] = P_spes_temp[1] - step_length*beta2
 
 # Plotting
 load_plot.append(abs(P_spes_temp[0]+P_spes_temp[1]))
@@ -328,8 +328,8 @@ print("\nVoltage magnitues:\n", v)
 print("\nVoltage angles:\n", theta)
 
 # Updating spesified powers
-P_spes_temp[0] = P_spes_temp[0] + P_spes_temp[0]*step_length*beta1
-P_spes_temp[1] = P_spes_temp[1] + P_spes_temp[1]*step_length*beta2
+P_spes_temp[0] = P_spes_temp[0] - step_length*beta1
+P_spes_temp[1] = P_spes_temp[1] - step_length*beta2
 
 # Plotting
 load_plot.append(abs(P_spes_temp[0]+P_spes_temp[1]))
@@ -358,7 +358,7 @@ max_mismatch = 1
 # Iteration count
 it = 0
 
-while max_mismatch > error and it < 4:
+while max_mismatch > error:
     print("\nIteration nr.", it+1)
 
     # Updating T and U
@@ -411,7 +411,9 @@ while max_mismatch > error and it < 4:
     # Updating mismatch vectors
     for i in range(2):
         mismatch[i][0] = P_spes_temp[i] - P_cal[i]
-        mismatch[i + 2][0] = Q_spes[i] - Q_cal[i]
+
+    mismatch[3][0] = Q_spes[1] - Q_cal[1]
+
 
     print("\nMismatch vector:\n", mismatch)
 
@@ -424,6 +426,9 @@ while max_mismatch > error and it < 4:
     for i in range(2):
         theta[i] = theta[i] + corr[i][0]
         v[i] = v[i] + corr[i + 2][0]
+
+    P_spes_temp[0] -= beta1 * corr[4][0]
+    P_spes_temp[1] -= beta2 * corr[4][0]
 
     print("\nVoltage magnitues:\n", v)
     print("\nVoltage angles:\n", theta)

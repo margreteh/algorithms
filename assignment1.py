@@ -8,11 +8,11 @@ v = np.ones(3)
 theta = np.zeros(3)
 
 # Network values
-R12 = 0.1
+R12 = 0.05
 R13 = 0.05
 R23 = 0.05
 X12 = 0.2
-X13 = 0.25
+X13 = 0.1
 X23 = 0.15
 
 # Impedances
@@ -30,8 +30,8 @@ G = Y_not_bus.real
 B = Y_not_bus.imag
 
 # Load values
-P1 = -0.8
-P2 = -0.4
+P1 = -1.0
+P2 = -0.5
 Q1 = -0.5
 Q2 = -0.5
 
@@ -68,7 +68,7 @@ error = 0.001
 # Iteration count
 it = 1
 
-while max_mismatch > error and it < 4:
+while max_mismatch > error:
     print("\nIteration nr. ", it, ":")
 
     # Updating T and U

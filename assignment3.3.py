@@ -1,7 +1,8 @@
 import numpy as np
 import math
 
-print("Assignment 3: Decoupled Power Flow")
+print("Assignment 3.3: Decoupled Power Flow with R = X")
+
 
 # Choose method
 primal = 0
@@ -21,24 +22,20 @@ v = np.ones(3)
 theta = np.zeros(3)
 
 # Network values
-R12 = 0.05
-R13 = 0.05
-R23 = 0.05
-
 X12 = 0.2
 X13 = 0.1
 X23 = 0.15
 
 # Impedances
-Z12 = complex(R12, X12)
-Z13 = complex(R13, X13)
-Z23 = complex(R23, X23)
+Z12 = complex(X12, X12)
+Z13 = complex(X13, X13)
+Z23 = complex(X23, X23)
 
-y12 = 1/Z12
-y13 = 1/Z13
-y23 = 1/Z23
+y12 = 1 / Z12
+y13 = 1 / Z13
+y23 = 1 / Z23
 
-Y_not_bus = np.array([[(y12+y13), y12, y13], [y12, (y12+y23), y23], [y13, y23, (y13+y23)]])
+Y_not_bus = np.array([[(y12 + y13), y12, y13], [y12, (y12 + y23), y23], [y13, y23, (y13 + y23)]])
 
 G = Y_not_bus.real
 B = Y_not_bus.imag
@@ -48,12 +45,12 @@ Z12_eq = complex(0, X12)
 Z13_eq = complex(0, X13)
 Z23_eq = complex(0, X23)
 
-y12_eq = 1/Z12_eq
-y13_eq = 1/Z13_eq
-y23_eq = 1/Z23_eq
+y12_eq = 1 / Z12_eq
+y13_eq = 1 / Z13_eq
+y23_eq = 1 / Z23_eq
 
-Y_not_bus_eq = np.array([[(y12_eq+y13_eq), y12_eq, y13_eq], [y12_eq, (y12_eq+y23_eq), y23_eq],
-                         [y13_eq, y23_eq, (y13_eq+y23_eq)]])
+Y_not_bus_eq = np.array([[(y12_eq + y13_eq), y12_eq, y13_eq], [y12_eq, (y12_eq + y23_eq), y23_eq],
+                         [y13_eq, y23_eq, (y13_eq + y23_eq)]])
 
 G_eq = Y_not_bus_eq.real
 B_eq = Y_not_bus_eq.imag
@@ -97,7 +94,7 @@ error = 0.001
 it = 0
 
 while max_mismatch > error:
-    print("\nIteration nr.:", it+1)
+    print("\nIteration nr.:", it + 1)
 
     # Calculating T and U
     for i in range(buses.size):
@@ -107,7 +104,6 @@ while max_mismatch > error:
 
             T_eq[i][j] = G_eq[i][j] * math.cos(theta[i] - theta[j]) + B_eq[i][j] * math.sin(theta[i] - theta[j])
             U_eq[i][j] = G_eq[i][j] * math.sin(theta[i] - theta[j]) - B_eq[i][j] * math.cos(theta[i] - theta[j])
-
 
     # Calculating powers
     for i in range(buses.size):
@@ -183,6 +179,3 @@ while max_mismatch > error:
 
     # Updating iteration count
     it += 1
-
-
-
